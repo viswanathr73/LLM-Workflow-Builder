@@ -4,3 +4,9 @@
 html, body {
   font-family: "Inter", sans-serif;
 }
+
+.react-flow__node {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}

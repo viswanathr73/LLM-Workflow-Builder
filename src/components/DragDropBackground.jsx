@@ -1,50 +1,83 @@
-import { Plus, Minus, Maximize2,  Unlock } from 'lucide-react';
-import { LuSquareMousePointer } from "react-icons/lu";
+import React, { useCallback } from "react";
+import ReactFlow, {
+  MiniMap,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+} from "reactflow";
+import "reactflow/dist/style.css";
+import { useNodes } from "../context/NodesContext";
+import InputNode from "./nodes/input-node";
+import LLMNode from "./nodes/llm-node";
+import OutputNode from "./nodes/output-node";
+
+const nodeTypes = {
+  input: InputNode,
+  llm: LLMNode,
+  output: OutputNode,
+};
 
 const DragDropBackground = () => {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Handle connections between nodes
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
+
+  // Allow dropping new nodes onto the canvas
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+      const nodeType = event.dataTransfer.getData("application/reactflow");
+
+      if (!nodeType) return;
+
+      const position = {
+        x: event.clientX - 250, // Adjust position slightly to center it
+        y: event.clientY - 60,
+      };
+
+      const newNode = {
+        id: `${nodes.length + 1}`,
+        type: nodeType,
+        position,
+        data: {},
+        draggable: true, // Ensure new nodes are draggable
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+    },
+    [nodes, setNodes]
+  );
+
+  // Prevent default behavior when dragging over the canvas
+  const onDragOver = (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  };
+
   return (
-    <div className="relative w-full h-screen bg-gray-50 ">
-      {/* Dotted background pattern */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: 'radial-gradient(#e0e0e0 1px, transparent 1px)',
-          backgroundSize: '20px 20px'
-        }}
-      />
-
-      {/* Center content */}
-      <div className="absolute inset-0 flex items-center justify-center w-full h-full">
-        <div className="text-center">
-          <div className="w-12 h-12 mb-4 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
-            <LuSquareMousePointer className="w-6 h-6 text-green-500" />
-          </div>
-          <p className="text-gray-600">Drag & drop to get started</p>
-        </div>
-      </div>
-
-      {/* Bottom left vertical icons */}
-      <div
-        className="absolute flex flex-col gap-2"
-        style={{
-          left: '329.57px',
-          top: '565.18px',
-          height: '112.42px'
-        }}
+    <div className="relative w-full h-[calc(100vh-63px)] bg-gray-50">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        nodeTypes={nodeTypes}
+        fitView
       >
-        <button className="p-2 hover:bg-gray-100 rounded-md">
-          <Plus className="w-4 h-4 text-gray-600" />
-        </button>
-        <button className="p-2 hover:bg-gray-100 rounded-md">
-          <Minus className="w-4 h-4 text-gray-600" />
-        </button>
-        <button className="p-2 hover:bg-gray-100 rounded-md">
-          <Maximize2 className="w-4 h-4 text-gray-600" />
-        </button>
-        <button className="p-2 hover:bg-gray-100 rounded-md">
-          < Unlock className="w-4 h-4 text-gray-600" />
-        </button>
-      </div>
+        <Controls />
+        <MiniMap />
+        <Background variant="dots" gap={12} size={1} />
+      </ReactFlow>
     </div>
   );
 };
