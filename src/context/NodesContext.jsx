@@ -3,28 +3,41 @@ import { createContext, useContext, useState } from "react";
 const NodesContext = createContext();
 
 export const NodesProvider = ({ children }) => {
-  const [inputText, setInputText] = useState(""); // Stores user input
-  const [apiKey, setApiKey] = useState(""); // API Key for LLM
-  const [maxTokens, setMaxTokens] = useState(100); // Max token setting
-  const [temperature, setTemperature] = useState(0.5); // Temperature setting
-  const [model, setModel] = useState("gpt-3.5"); // Default model
-  const [outputResponse, setOutputResponse] = useState(""); // LLM Response
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const [inputText, setInputText] = useState(""); 
+  
+  // API configuration
+  const [apiProvider, setApiProvider] = useState("together"); // "openai" or "together"
+  const [apiKey, setApiKey] = useState(import.meta.env.VITE_TOGETHER_API_KEY || "");
+  
+  const [model, setModel] = useState("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free");
+  const [maxTokens, setMaxTokens] = useState(100);
+  const [temperature, setTemperature] = useState(0.5);
+  
+  const [outputResponse, setOutputResponse] = useState("");
+
+  // Execution states
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionError, setExecutionError] = useState(null);
 
   return (
-    <NodesContext.Provider
-      value={{
-        inputText, setInputText,
-        apiKey, setApiKey,
-        maxTokens, setMaxTokens,
-        temperature, setTemperature,
-        model, setModel,
-        outputResponse, setOutputResponse
-      }}
-    >
+    
+    <NodesContext.Provider value={{
+      nodes, setNodes, edges, setEdges,
+      inputText, setInputText,
+      apiProvider, setApiProvider,
+      apiKey, setApiKey,
+      model, setModel,
+      maxTokens, setMaxTokens,
+      temperature, setTemperature,
+      outputResponse, setOutputResponse,
+      isExecuting, setIsExecuting,
+      executionError, setExecutionError
+    }}>
       {children}
     </NodesContext.Provider>
   );
 };
 
-// Custom hook for using context
 export const useNodes = () => useContext(NodesContext);
