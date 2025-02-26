@@ -8,12 +8,15 @@ export default function Header() {
   const { 
     nodes, edges, inputText, 
     apiProvider, apiKey, model, maxTokens, temperature, 
-    setOutputResponse, isExecuting, setIsExecuting, setExecutionError 
+    setOutputResponse, isExecuting, setIsExecuting, setExecutionError,
+    flowExecutedSuccessfully, setFlowExecutedSuccessfully,
+    setIsDeployed
   } = useNodes();
 
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDeploySuccess, setShowDeploySuccess] = useState(false);
  
   const runWorkflow = useCallback(async () => {
     console.log("Running workflow...");
@@ -73,6 +76,7 @@ export default function Header() {
       
       setOutputResponse(response);
       setShowSuccess(true);
+      setFlowExecutedSuccessfully(true); // Mark that the flow ran successfully
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       setExecutionError(error.message);
@@ -82,8 +86,22 @@ export default function Header() {
     } finally {
       setIsExecuting(false);
     }
-  }, [inputText, apiProvider, apiKey, model, maxTokens, temperature, nodes, edges, setOutputResponse]);
+  }, [inputText, apiProvider, apiKey, model, maxTokens, temperature, nodes, edges, setOutputResponse, setFlowExecutedSuccessfully]);
   
+  const handleDeploy = useCallback(() => {
+    if (flowExecutedSuccessfully) {
+      setShowDeploySuccess(true);
+      setTimeout(() => {
+        setShowDeploySuccess(false);
+        setIsDeployed(true); // Just set to true without navigation - App.jsx will handle rendering
+      }, 2000);
+    } else {
+      setErrorMessage("Please run the flow successfully before deploying");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+    }
+  }, [flowExecutedSuccessfully, setIsDeployed]);
+
   return (
     <>
       {showError && (
@@ -107,6 +125,18 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {showDeploySuccess && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-4 rounded-md w-full max-w-md">
+          <div className="flex items-center">
+            <span className="mr-3 text-xl">✓</span>
+            <div>
+              <p className="font-medium">Deployed successfully</p>
+              <p className="text-sm mt-1">Initializing chat interface...</p>
+            </div>
+          </div>
+        </div>
+      )}
       
       <header className="flex h-[63px] items-center justify-between border-b border-gray-200 shadow-sm bg-white px-6">
         <div className="flex items-center gap-2">
@@ -116,7 +146,11 @@ export default function Header() {
           <span className="font-semibold">OpenAGI</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="w-[78px] h-[31px] px-[15px] py-[7px] rounded-[8px] bg-gray-400 text-white text-[14px] font-semibold leading-[16.94px] border hover:bg-gray-500 cursor-pointer">
+          <button 
+            className={`w-[78px] h-[31px] px-[15px] py-[7px] rounded-[8px] ${flowExecutedSuccessfully ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400'} text-white text-[14px] font-semibold leading-[16.94px] border`}
+            onClick={handleDeploy}
+            disabled={!flowExecutedSuccessfully}
+          >
             Deploy
           </button>
 

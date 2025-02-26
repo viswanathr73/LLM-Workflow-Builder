@@ -20,9 +20,12 @@ export const NodesProvider = ({ children }) => {
   // Execution states
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionError, setExecutionError] = useState(null);
+  
+  // Deployment states
+  const [flowExecutedSuccessfully, setFlowExecutedSuccessfully] = useState(false);
+  const [isDeployed, setIsDeployed] = useState(false);
 
   return (
-    
     <NodesContext.Provider value={{
       nodes, setNodes, edges, setEdges,
       inputText, setInputText,
@@ -33,7 +36,9 @@ export const NodesProvider = ({ children }) => {
       temperature, setTemperature,
       outputResponse, setOutputResponse,
       isExecuting, setIsExecuting,
-      executionError, setExecutionError
+      executionError, setExecutionError,
+      flowExecutedSuccessfully, setFlowExecutedSuccessfully,
+      isDeployed, setIsDeployed
     }}>
       {children}
     </NodesContext.Provider>
