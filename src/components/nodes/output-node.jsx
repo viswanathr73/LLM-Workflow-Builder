@@ -14,7 +14,11 @@ export default function OutputNode({ data }) {
           </div>
           <h3 className="text-sm font-medium">OUTPUT</h3>
         </div>
-        <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+        <div
+          className={`w-2 h-2 rounded-full ${
+            isConnected ? "bg-green-500" : "bg-gray-400"
+          }`}
+        ></div>
       </div>
       <div className="p-4">
         <div className="space-y-2">
@@ -36,12 +40,12 @@ export default function OutputNode({ data }) {
               type="target"
               position={Position.Bottom}
               id="output-in"
-              style={{ 
-                background: '#16a34a', 
-                width: '8px', 
-                height: '8px',
-                bottom: '-4px',
-                left: '0',
+              style={{
+                background: "#16a34a",
+                width: "8px",
+                height: "8px",
+                bottom: "-4px",
+                left: "0",
               }}
             />
           </div>
